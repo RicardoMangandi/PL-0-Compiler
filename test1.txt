@@ -1,4 +1,8 @@
-var x, y;
+procedure A;
+	var y;
+	begin
+		y := 12;
+	end;
 begin
-	x :=y * 2;
+	call A;
 end.

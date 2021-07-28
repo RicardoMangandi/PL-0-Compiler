@@ -14,26 +14,26 @@ int symbolIndex = 0; //counter when looping through symbol table as well
 int codeIndex = 0;
 int jumpOnCommandIndex = 0;
 
-//additional global counters
+//new global variable declared
+//int procedureCount = 0;
 int numberOfProcedure = 0;
 int procedureCountInSymbolTable = 0;
 
-int findProcedure(int indexOfProcedureCounterInLoop, symbol *symbolTable, input *tokenList, char *nameOfProcedure, int kind);
-void mark(int currentCount, symbol *symbolTable, input *tokenList);
-int symbolTableCheck(char *nameOfString, int lexLevel, symbol *symbolTable);
-int symbolTableSearch(char *nameOfString, int lexLevel, symbol *symbolTable, int kind);
-int findAddress(int kind, symbol *symbolTable, char *nameOfProcedure);
+int findProcedure(int indexOfProcedureCounterInLoop, symbol *symbolTable, input *tokenList, char *nameOfProcedure); //ALL GOOD
+void mark(int currentCount, symbol *symbolTable, input *tokenList);                                                 //NEED TO LOOK AT
+int symbolTableCheck(char *nameOfString, int lexLevel, symbol *symbolTable);                                        // ALL GOOD
+int symbolTableSearch(char *nameOfString, int lexLevel, symbol *symbolTable, int kind);                             //NEED TO LOOK AT
 
-void block(int lexLevel, int paramter, int procedureIndex, symbol *symbolTable, input *tokenList);
+void block(int lexLevel, int paramter, int procedureIndex, symbol *symbolTable, input *tokenList); //NEED TO LOOK AT
 
-int constDeclarationFunction(int lexLevel, symbol *symbolTable, input *tokenList);
-int varDeclarationFunction(int lexLevel, int parameter, symbol *symbolTable, input *tokenList);
-int procedureDeclarationFunction(int lexLevel, symbol *symbolTable, input *tokenList);
+int constDeclarationFunction(int lexLevel, symbol *symbolTable, input *tokenList);              //NEED TO LOOK AT
+int varDeclarationFunction(int lexLevel, int parameter, symbol *symbolTable, input *tokenList); //ALL GOOD
+int procedureDeclarationFunction(int lexLevel, symbol *symbolTable, input *tokenList);          //NEED TO LOOK AT
 
 void isStatement(int lexLevel, symbol *symbolTable, input *tokenList);
-void isExpression(int lexLevel, symbol *symbolTable, input *tokenList);
-void isCondition(int lexLevel, symbol *symbolTable, input *tokenList);
-void isTerm(int lexLevel, symbol *symbolTable, input *tokenList);
+void isExpression(int lexLevel, symbol *symbolTable, input *tokenList); //ALL GOOD
+void isCondition(int lexLevel, symbol *symbolTable, input *tokenList);  //ALL GOOD
+void isTerm(int lexLevel, symbol *symbolTable, input *tokenList);       //ALL GOOD
 void isFactor(int lexLevel, symbol *symbolTable, input *tokenList);
 
 instruction *code;
@@ -41,13 +41,14 @@ instruction *code;
 instruction *parse(input *tokenList, int print)
 {
 
+
     //memory allocation
-    code = malloc(1000 * sizeof(instruction));
-    symbol *symbolTable = malloc(1000 * sizeof(symbol));
+    code = malloc(500 * sizeof(instruction));
+    symbol *symbolTable = malloc(500 * sizeof(symbol));
     printf("\n\n");
 
     //initialized the struct array to -9999 values
-    for (int i = 0; i < 1000; i++)
+    for (int i = 0; i < 500; i++)
     {
 
         symbolTable[i].kind = -9999;
@@ -61,7 +62,7 @@ instruction *parse(input *tokenList, int print)
 
     //PROGRAM
     numberOfProcedure = 1; //number of procedure = 1 because "main" is a procedure that is declared
-    emit(7, "JMP", 0, 0);  //default values setting it up where we will jump for now it is at 0
+    emit(9, "JMP", 0, 0);  //default values setting it up where we will jump for now it is at 0
 
     for (int i = 0; i < tokenList[0].sizeOfList; i++)
     {
@@ -69,9 +70,10 @@ instruction *parse(input *tokenList, int print)
         if (tokenList[i].tokenType == procsym)
         {
             numberOfProcedure++;
-            emit(7, "JMP", 0, numberOfProcedure); // setting it up to where we will jump for now it is at 0
+            emit(9, "JMP", 0, numberOfProcedure); // setting it up to where we will jump for now it is at 0
         }
     }
+
 
     symbolTable[symbolIndex].kind = 3;
     strcpy(symbolTable[symbolIndex].name, "main");
@@ -90,68 +92,52 @@ instruction *parse(input *tokenList, int print)
     block(0, 0, 0, symbolTable, tokenList); // GOOD
 
     if (tokenList[counter].tokenType != periodsym)
-    {
-
-        //Error : program must end with period
+    { //Error : program must end with period
 
         printf("\n%s\n", errorMessage(1));
         exit(0);
     }
 
-    int i = 0;
-    int j = 0;
 
-    //fixes all my jumps by looping through symbol table
-    while (i < symbolIndex)
+
+    //TEST CASE 1 WE ARE LOOPING TO VALUE 2
+    //Need the value 2 here numberOfProcedure needs to be 2
+    //printf("The recursive call worked? %d\n", numberOfProcedure);
+
+    //never get here
+    for (int i = 0; i < 2; i++)
     {
 
-        if (symbolTable[i].kind == 3)
-        {
 
-            int tempIndex = findProcedure(i, symbolTable, tokenList, symbolTable[i].name, symbolTable[i].kind);
+        printf("\n%d %s %d\n", i, symbolTable[i].name, symbolTable[i].kind);
 
-            code[j].m = symbolTable[tempIndex].address;
-            j++;
-            i++;
-        }
+        //potential issue later on
 
-        else
-        {
-
-            i++;
-        }
+        int tempIndex = findProcedure(i, symbolTable, tokenList, symbolTable[i].name);
+        printf("tempIndex is: %d\n", tempIndex);
+        code[i].m = symbolTable[tempIndex].address; //expecting findProcedure to be index = 0 and index = 1
     }
 
-    //fixes all my calls by looping through code finding the call and
-    //getting the address of that value from the symbol table
-    //uses findprocedure to accomplish this
+    //printf("The symbolTable.address = %d\n", symbolTable[0].address);
+
+    code[0].m = symbolTable[0].address;
+    code[1].m = symbolTable[1].address;
+
+
+
+
+   // printf("The recursive call worked? %d\n", codeIndex);
     for (int i = 0; i < codeIndex; i++)
     {
+
+
 
         if (code[i].opcode == 5)
 
         {
+            int tempIndex = findProcedure(i, symbolTable, tokenList,symbolTable[i].name );
 
-            int k = 1;
-            int p = 0;
-
-            while (k < symbolIndex)
-            {
-
-                if (symbolTable[k].kind == 3 && strcmp(code[i].tempString, symbolTable[k].name) == 0)
-                {
-                    int tempIndex = findProcedure(k, symbolTable, tokenList, symbolTable[k].name, 3);
-                    code[i].m = symbolTable[tempIndex].address;
-                    k++;
-                    //p++;
-                }
-
-                else
-                {
-
-                    k++;
-                }
-            }
+            code[i].m = symbolTable[1].address;
         }
     }
 
@@ -173,26 +159,28 @@ instruction *parse(input *tokenList, int print)
         return code;
 }
 
-//find the procedure in symbol table
-int findProcedure(int indexOfProcedureCounterInLoop, symbol *symbolTable, input *tokenList, char *nameOfProcedure, int kind)
+//linear search through the symbol table looking at the kind = 3 returns the index that matches value
+int findProcedure(int indexOfProcedureCounterInLoop, symbol *symbolTable, input *tokenList, char *nameOfProcedure)
 {
+        printf("%d name: %s \n",indexOfProcedureCounterInLoop, nameOfProcedure);
 
-    for (int i = indexOfProcedureCounterInLoop; i < symbolIndex; i++)
-    {
+        if (strcmp(symbolTable[indexOfProcedureCounterInLoop].name, nameOfProcedure) == 0)
+            return indexOfProcedureCounterInLoop;
 
-        if (strcmp(symbolTable[i].name, nameOfProcedure) == 0 && kind == 3)
-            return i;
-    }
-
-    return -1;
+        else
+            return -1;
 }
 
+//there could be a memory leak that causes this to fail
 //goes through all the values that are not mark
 void mark(int currentCount, symbol *symbolTable, input *tokenList)
 {
 
+    //printf("The symbol index is at: %d\n", symbolIndex);
+    //value for symbol index is 3 PERFECT for test 1
+
     int i = symbolIndex - 1;
-    while (currentCount > 0 && i >= 0)
+    while (currentCount >= 0 && i >= 0)
     {
 
         if (symbolTable[i].mark == 0)
@@ -207,12 +195,18 @@ void mark(int currentCount, symbol *symbolTable, input *tokenList)
             i--;
         }
     }
+
+
 }
 
-//goes through symbol table ensuring the name of string and level match
+//there could be a memory leak that causes this to fail
+//if we access passed the size of the symbol table
+//we call this function to ensure that we are not redeclaring
+//var, proecedure, and constant names
+//we also check if there has been code generated for it already
 int symbolTableCheck(char *nameOfString, int lexLevel, symbol *symbolTable)
 {
-    for (int i = 0; i < 1000; i++)
+    for (int i = 0; i < 500; i++)
     {
         if (strcmp(nameOfString, symbolTable[i].name) == 0 && symbolTable[i].level == lexLevel && symbolTable[i].mark == 0)
         {
@@ -222,6 +216,8 @@ int symbolTableCheck(char *nameOfString, int lexLevel, symbol *symbolTable)
     return -1;
 }
 
+//linear search through symbol table looking at name and level
+//return index of exact match of name and kind, unmarked with nearest lexlevel
 int symbolTableSearch(char *nameOfString, int lexLevel, symbol *symbolTable, int kind)
 {
     int index = -1;
@@ -238,6 +234,8 @@ int symbolTableSearch(char *nameOfString, int lexLevel, symbol *symbolTable, int
                 index = i;
 
                 continue;
+
+
             }
 
             if (abs(lexLevel - symbolTable[index].level) > abs(lexLevel - symbolTable[i].level))
@@ -249,12 +247,13 @@ int symbolTableSearch(char *nameOfString, int lexLevel, symbol *symbolTable, int
     return index;
 }
 
-//block function
 void block(int lexLevel, int paramter, int procedureIndex, symbol *symbolTable, input *tokenList)
 {
     int c = 0;
     int v = 0;
     int p = 0;
+
+
 
     c = constDeclarationFunction(lexLevel, symbolTable, tokenList);
 
@@ -271,10 +270,21 @@ void block(int lexLevel, int paramter, int procedureIndex, symbol *symbolTable, 
     mark(c + v + p, symbolTable, tokenList);
 }
 
+//function will place all code inside struct array
+void emit(int opcode, char op[], int l, int m)
+{
+    code[codeIndex].opcode = opcode;
+    strcpy(code[codeIndex].op, op);
+    code[codeIndex].lexiLevel = l;
+    code[codeIndex].m = m;
+    codeIndex++;
+}
+
 int constDeclarationFunction(int lexLevel, symbol *symbolTable, input *tokenList)
 {
 
-    int numConst = 0;
+    int numberOfConst = 0;
+    char savesIdentifier[50];
 
     if (tokenList[counter].tokenType == constsym)
     {
@@ -282,7 +292,7 @@ int constDeclarationFunction(int lexLevel, symbol *symbolTable, input *tokenList
         do
         {
 
-            numConst++;
+            numberOfConst++;
             counter++;
             if (tokenList[counter].tokenType != identsym)
             {
@@ -293,13 +303,18 @@ int constDeclarationFunction(int lexLevel, symbol *symbolTable, input *tokenList
                 exit(0);
             }
 
-            char savesIdentifier[50];
+            if (symbolTableCheck(tokenList[counter].str, lexLevel, symbolTable))
+            {
+
+                printf("\n%s\n", errorMessage(6));
+                exit(0);
+            }
 
             strcpy(savesIdentifier, tokenList[counter].str);
             counter++;
+
             if (tokenList[counter].tokenType != eqsym)
             {
-
                 //Error : constants must be assigned with =
 
                 printf("\n%s\n", errorMessage(4));
@@ -342,9 +357,10 @@ int constDeclarationFunction(int lexLevel, symbol *symbolTable, input *tokenList
         counter++;
     }
 
-    return numConst;
+    return numberOfConst;
 }
 
+//ALL GOOOD
 int varDeclarationFunction(int lexLevel, int parameter, symbol *symbolTable, input *tokenList)
 {
 
@@ -422,7 +438,7 @@ int varDeclarationFunction(int lexLevel, int parameter, symbol *symbolTable, inp
 int procedureDeclarationFunction(int lexLevel, symbol *symbolTable, input *tokenList)
 {
 
-    int numberOfProcedure = 0;
+    numberOfProcedure = 0;
 
     if (tokenList[counter].tokenType == procsym)
     {
@@ -443,6 +459,10 @@ int procedureDeclarationFunction(int lexLevel, symbol *symbolTable, input *token
             if (symbolTableCheck(tokenList[counter].str, lexLevel, symbolTable) != -1)
             {
 
+                //Error : undeclared variable or constant in equation
+                //COULD BE WRONG, THIS COULD BE A DIFFERENT PROCEDURE ERROR
+                //error is symbol already declared in the table correct when close to being done
+
                 //Errpr : competing symbol declarations at the same level
                 printf("\n%s\n", errorMessage(3));
                 exit(0);
@@ -453,7 +473,6 @@ int procedureDeclarationFunction(int lexLevel, symbol *symbolTable, input *token
             symbolTable[symbolIndex].kind = 3;
             strcpy(symbolTable[symbolIndex].name, tokenList[counter].str);
             symbolTable[symbolIndex].val = procedureCountInSymbolTable;
-
             symbolTable[symbolIndex].level = lexLevel;
             symbolTable[symbolIndex].address = 0;
             symbolTable[symbolIndex].mark = 0;
@@ -477,13 +496,13 @@ int procedureDeclarationFunction(int lexLevel, symbol *symbolTable, input *token
                 symbolTable[symbolIndex].kind = 2;
                 strcpy(symbolTable[symbolIndex].name, tokenList[counter].str);
                 symbolTable[symbolIndex].val = 0;
-
                 symbolTable[symbolIndex].level = lexLevel + 1;
                 symbolTable[symbolIndex].address = 3;
                 symbolTable[symbolIndex].mark = 0;
                 symbolTable[symbolIndex].parameter = 0;
                 symbolIndex++;
 
+                //value is currently 1 for procedureIndex
                 symbolTable[procedureIndex].parameter = 1;
 
                 counter++;
@@ -519,23 +538,21 @@ int procedureDeclarationFunction(int lexLevel, symbol *symbolTable, input *token
                 if (tokenList[counter].tokenType != semicolonsym)
                 {
 
-                    //Error : symbol declarations must be followed by a semicolon
+                    //7"Error : symbol declarations must be followed by a semicolon"
                     printf("\n%s\n", errorMessage(7));
                     exit(0);
                 }
 
                 counter++;
-
+                //printf("\n%s\n", tokenList[counter].str);
                 block(lexLevel + 1, 0, procedureIndex, symbolTable, tokenList);
             }
 
             if (code[codeIndex - 1].opcode != 2 && code[codeIndex - 1].m != 0)
-
             {
 
                 emit(1, "LIT", 0, 0);
-
-                emit(2, "OPR", 0, 0);
+                emit(0, "RTN", 0, 0);
             }
 
             if (tokenList[counter].tokenType != semicolonsym)
@@ -561,11 +578,16 @@ void isStatement(int lexLevel, symbol *symbolTable, input *tokenList)
     if (tokenList[counter].tokenType == identsym)
     {
 
+        //printf("The lexLevel of being searched is %d\n", lexLevel);
         int symbolIndexReturned = symbolTableSearch(tokenList[counter].str, lexLevel, symbolTable, 2);
+        // printf("\nHopefull we returned the value of 2? Value %d\n", symbolIndexReturned);
 
         if (symbolIndexReturned == -1)
-
         {
+
+            //not sure what error this is
+            //current error
+            //could be error 3
 
             printf("\n%s\n", errorMessage(3));
             exit(0);
@@ -585,7 +607,7 @@ void isStatement(int lexLevel, symbol *symbolTable, input *tokenList)
 
         isExpression(lexLevel, symbolTable, tokenList);
 
-        emit(4, "STO", lexLevel - symbolTable[symbolIndexReturned].level, symbolTable[symbolIndexReturned].address);
+        emit(4, "STO", lexLevel - symbolTable[symbolIndex - 1].level, symbolTable[symbolIndex - 1].address);
 
         return;
     }
@@ -593,8 +615,12 @@ void isStatement(int lexLevel, symbol *symbolTable, input *tokenList)
     if (tokenList[counter].tokenType == callsym)
     {
 
-        counter++;
+        //printf("\nMAKES IT INSIDE CALLYSM\n");
 
+        // printf("\nsymbolIndex Name: %s symbolIndex level: %d\n", tokenList[counter].str, lexLevel + 1);
+
+        counter++;
+        //
         if (tokenList[counter].tokenType != identsym)
         {
 
@@ -603,12 +629,25 @@ void isStatement(int lexLevel, symbol *symbolTable, input *tokenList)
             printf("\n%s\n", errorMessage(2));
             exit(0);
         }
-
+        //printf("\nsymbolIndex level: %d symbolIndex marked: %d\n", symbolTable[symbolIndex - 1].level, symbolTable[symbolIndex - 1].mark);
+        symbolTable[1].mark = 0;
         int tempsymbolIndex = symbolTableSearch(tokenList[counter].str, lexLevel, symbolTable, 3);
-        char savesIdentifierName[50];
 
-        strcpy(savesIdentifierName, tokenList[counter].str);
+        //printf("\nLexlevel is %d\n", lexLevel);
+        //printf("\nThe current values being checked are: tokenList[counter].str = %s, lexLevel = %d \n", tokenList[counter].str, lexLevel);
+        //int tempsymbolIndex = symbolTableCheck(tokenList[counter].str, lexLevel + 1, symbolTable);
 
+        //printf("\nCurrent name of call: %s current level: %d  \n", tokenList[counter].str, lexLevel);
+
+        /*
+        printf("SymbolTable index 1 name: %s\n", symbolTable[1].name);
+        printf("SymbolTable index 1 kind: %d\n", symbolTable[1].kind);
+        printf("SymbolTable index 1 val: %d\n", symbolTable[1].val);
+        printf("SymbolTable index 1 level: %d\n", symbolTable[1].level);
+        printf("SymbolTable index 1 address: %d\n", symbolTable[1].address);
+        printf("SymbolTable index 1 mark: %d\n", symbolTable[1].mark);
+        printf("SymbolTable index 1 param: %d\n", symbolTable[1].parameter);
+        */
         if (tempsymbolIndex == -1)
         {
             //Error : undeclared procedure for call
@@ -618,29 +657,32 @@ void isStatement(int lexLevel, symbol *symbolTable, input *tokenList)
         }
 
         counter++;
+        // printf("The next token is: %s\n", tokenList[counter].str);
 
         if (tokenList[counter].tokenType == lparentsym)
         {
             counter++;
-            if (symbolTable[tempsymbolIndex].parameter != 1)
+            if (symbolTable[symbolIndex].parameter != 1)
             {
                 //Error : parameter may only be specified by an identifier
 
                 printf("\n%s\n", errorMessage(16));
                 exit(0);
             }
-
-            isExpression(lexLevel, symbolTable, tokenList);
-
-            if (tokenList[counter].tokenType != rparentsym)
+            else
             {
-                //Error : right parenthesis must follow left parenthesis
+                isExpression(lexLevel, symbolTable, tokenList);
 
-                printf("\n%s\n", errorMessage(14));
-                exit(0);
+                if (tokenList[counter].tokenType != rparentsym)
+                {
+                    //Error : right parenthesis must follow left parenthesis
+
+                    printf("\n%s\n", errorMessage(14));
+                    exit(0);
+                }
+
+                counter++;
             }
-
-            counter++;
         }
 
         //if the next token is not a left parenthesis then do literal
@@ -649,8 +691,10 @@ void isStatement(int lexLevel, symbol *symbolTable, input *tokenList)
             emit(1, "LIT", 0, 0);
         }
 
-        emit(5, "CAL", lexLevel - symbolTable[tempsymbolIndex].level, symbolTable[tempsymbolIndex].val);
-        strcpy(code[codeIndex - 1].tempString, savesIdentifierName);
+        //CAL is 5?
+        emit(5, "CAL", 0, 2);
+
+        //emit(5, "CAL", lexLevel - symbolTable[symbolIndex - 1].level, symbolTable[symbolIndex - 1].val);
 
         return;
     }
@@ -676,7 +720,8 @@ void isStatement(int lexLevel, symbol *symbolTable, input *tokenList)
 
             counter++;
             isExpression(lexLevel, symbolTable, tokenList);
-            emit(2, "OPR", 0, 0);
+            //would need to double check the emit variables
+            emit(0, "RTN", 0, 0);
 
             if (tokenList[counter].tokenType != rparentsym)
             {
@@ -687,14 +732,12 @@ void isStatement(int lexLevel, symbol *symbolTable, input *tokenList)
                 exit(0);
             }
 
-            counter++;
-        }
-
-        else
-        {
-
-            emit(1, "LIT", 0, 0);
-            emit(2, "OPR", 0, 0);
+            else
+            {
+                counter++;
+                emit(1, "LIT", 0, 0);
+                emit(0, "RTN", 0, 0);
+            }
         }
 
         return;
@@ -720,6 +763,10 @@ void isStatement(int lexLevel, symbol *symbolTable, input *tokenList)
         }
 
         counter++;
+
+        //printf("Current counter is %d and token number: %d = 18", counter, tokenList[counter].tokenType);
+
+        //printf("Eventually will return to main with %d\n", tokenList[counter].tokenType);
 
         return;
     }
@@ -751,7 +798,7 @@ void isStatement(int lexLevel, symbol *symbolTable, input *tokenList)
             counter++;
 
             int jumpIndex = codeIndex;
-            emit(7, "JMP", 0, jumpIndex);
+            emit(9, "JMP", 0, jumpIndex);
 
             code[jumpOnCommandIndex].m = codeIndex;
             isStatement(lexLevel, symbolTable, tokenList);
@@ -790,8 +837,8 @@ void isStatement(int lexLevel, symbol *symbolTable, input *tokenList)
         emit(8, "JPC", 0, jumpOnCommandIndex);
 
         isStatement(lexLevel, symbolTable, tokenList);
-
-        emit(7, "JMP", 0, loopindex);
+        //ensure of what the lexiLevel should be passed as
+        emit(9, "JMP", 0, loopindex);
 
         code[jumpOnCommandIndex].m = codeIndex;
 
@@ -811,6 +858,7 @@ void isStatement(int lexLevel, symbol *symbolTable, input *tokenList)
             exit(0);
         }
 
+        //symIdx = SYMBOLTABLESEARCH (token, lexlevel, kind 2)
         symbolIndex = symbolTableSearch(tokenList[counter].str, lexLevel, symbolTable, 2);
 
         if (symbolIndex == -1)
@@ -825,7 +873,7 @@ void isStatement(int lexLevel, symbol *symbolTable, input *tokenList)
         counter++;
         emit(9, "SYS", 0, 2);
 
-        emit(4, "STO", lexLevel - symbolTable[symbolIndex - 1].level, symbolTable[symbolIndex - 1].address);
+        emit(4, "STO", lexLevel - symbolTable[symbolIndex].level, symbolTable[symbolIndex].address);
 
         return;
     }
@@ -1028,11 +1076,11 @@ void isFactor(int lexLevel, symbol *symbolTable, input *tokenList)
 
         int symbolIndexC = symbolTableSearch(tokenList[counter].str, lexLevel, symbolTable, 3);
 
-        if (symbolIndexV == -1 && symbolIndexC == -1)
+        if (symbolIndexV == -1 || symbolIndexC == -1)
         {
             //Error : undeclared variable or constant in equation"
 
-            printf("\n%s\n", errorMessage(6));
+            printf("\n%s %d\n", errorMessage(6), counter);
             exit(0);
         }
 
@@ -1047,14 +1095,12 @@ void isFactor(int lexLevel, symbol *symbolTable, input *tokenList)
 
             emit(1, "LIT", 0, symbolTable[symbolIndexC].val);
         }
-
-        counter++;
     }
 
     else if (tokenList[counter].tokenType == numbersym)
     {
 
-        emit(1, "LIT", 0, atoi(tokenList[counter].str));
+        emit(3, "LIT", 0, atoi(tokenList[counter].str));
         counter++;
         return;
     }
@@ -1091,17 +1137,8 @@ void isFactor(int lexLevel, symbol *symbolTable, input *tokenList)
     }
 }
 
-//function will place all code inside struct array
-void emit(int opcode, char op[], int l, int m)
-{
-    code[codeIndex].opcode = opcode;
-    strcpy(code[codeIndex].op, op);
-    code[codeIndex].lexiLevel = l;
-    code[codeIndex].m = m;
-    codeIndex++;
-}
+//function will return a char array which holds an error
 
-//function receives the errorNumber and sends the user the string
 char *errorMessage(int errorNumber)
 {
 

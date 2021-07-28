@@ -23,8 +23,8 @@ else
 fi
 
 
-echo -n "Testing test2.txt : "
-./a.out test2.txt -a -l -v <<< '7' > output.txt
+echo -n "Testing test2.txt (this one is super long, but it covers everything): "
+./a.out test2.txt -a -l -v > output.txt
 executed=$?
 if [[ $executed !=  0 ]]; then
 	echo "crashed"
