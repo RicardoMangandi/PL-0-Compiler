@@ -1,5 +1,3 @@
-
-
 typedef enum
 {
     modsym = 1,
@@ -40,7 +38,6 @@ typedef enum
 
 typedef struct input
 {
-
     char str[50];
     int tokenType;
     char *errorOrNoerror;
@@ -49,9 +46,7 @@ typedef struct input
 
 typedef struct instruction
 {
-
     char op[4];
-
     int opcode;
     int lexiLevel;
     int m;

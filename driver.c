@@ -1,3 +1,10 @@
+/*
+Written by: Ricardo Mangandi
+For: System Software
+Semester: Spring 2021
+*/
+
+//libraries used
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -12,7 +19,7 @@ int main(int argc, char **argv)
     char *inputfile;
     char c;
     int i;
-    int sizeOfTokenList;
+   
 
     //"In" and "out" operation performed when no directives are given
     if (argc == 2)
@@ -64,9 +71,13 @@ int main(int argc, char **argv)
         }
     }
 
+    //the file pointer points to the file we need to read
     ifp = fopen(argv[1], "r");
 
+    //allocate memory to program
     inputfile = malloc(1000 * sizeof(char));
+    
+    
     c = fgetc(ifp);
     i = 0;
 
@@ -85,12 +96,22 @@ int main(int argc, char **argv)
     //closes file
     fclose(ifp);
 
-    //executions begin
+    
+    //When the driver.c is finished reading from the file and filling the char array it proceeds to the lexical analyzer.
+    //The lexical analyzer checks for the following errors:
+    //Error : Identifiers cannot begin with a digit
+    //Error : Identifier names cannot exceed 11 characters
+    //Error : Numbers cannot exceed 5 digits
+    //Error : Invalid Symbols 
     input *list = lex_analyze(inputfile, lflag);
 
-    //printf("\n%d\n", list[0].sizeOfList);
-
+    //When the lex.c is finished verifying tokens it returns the list along with an id associate to that token
+    //The list is passed to the parser, the parser main job is to parse through all the tokens to ensure it
+    //follows the correct syntax
     instruction *code = parse(list, aflag);
+
+    //once all the values are parsed, they are converted to assembly code
+    //The assembly code is executed by the virtual machine
     execute(code, vflag);
 
     return 0;

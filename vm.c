@@ -1,7 +1,3 @@
-/*This program was written by: Ricardo Mangandi
-This program represents how the virtual machine works in
-the language PM/0 all code is represented in C.
-*/
 
 #include <stdio.h>
 #include <stdlib.h>

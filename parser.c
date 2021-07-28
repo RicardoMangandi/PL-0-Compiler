@@ -1,4 +1,3 @@
-//The parser file begins
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

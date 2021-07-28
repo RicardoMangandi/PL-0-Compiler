@@ -1,6 +1,3 @@
-
-//The beginning of the lex.c file
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -20,7 +17,7 @@ input *lex_analyze(char *getsCharList, int print)
     input *list = malloc(1000 * sizeof(input));
     int i = 0;
 
-    //variable declaration
+    //variable declaration for errors
     char *error1 = "Error : Identifiers cannot begin with a digit";
     char *error2 = "Error : Identifier names cannot exceed 11 characters";
     char *error3 = "Error : Numbers cannot exceed 5 digits";
@@ -77,7 +74,7 @@ input *lex_analyze(char *getsCharList, int print)
             b = 0;
         }
 
-        //takes care of all invisible characters
+        //takes care of all invisible characters, as they are ignored
         if (isspace(getsCharList[counter]) || iscntrl(getsCharList[counter]) || getsCharList[counter] == EOF)
         {
 
@@ -536,7 +533,6 @@ input *lex_analyze(char *getsCharList, int print)
         printf("Lexeme Table:\n");
         printf("       lexeme    token type\n");
 
-        //a is the value that was the counter in our while loop which was a < loopTo,
         //a is the size of my struct array
         for (int i = 0; i < a; i++)
         {
